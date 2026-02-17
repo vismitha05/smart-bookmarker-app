@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Bookmark } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 import BookmarkCard from './BookmarkCard'
+
+const supabase = createClient()
 
 interface BookmarkListProps {
   refreshTrigger: number
@@ -12,9 +14,8 @@ interface BookmarkListProps {
 export default function BookmarkList({ refreshTrigger }: BookmarkListProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
 
-  const fetchBookmarks = async () => {
+  const fetchBookmarks = useCallback(async () => {
     try {
       setLoading(true)
       const {
@@ -55,14 +56,14 @@ export default function BookmarkList({ refreshTrigger }: BookmarkListProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchBookmarks()
-  }, [refreshTrigger])
+  }, [refreshTrigger, fetchBookmarks])
 
   useEffect(() => {
-    const getUser = async () => {
+    const getUserAndSubscribe = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
@@ -80,9 +81,7 @@ export default function BookmarkList({ refreshTrigger }: BookmarkListProps) {
             table: 'bookmarks',
             filter: `user_id=eq.${user.id}`,
           },
-          () => {
-            fetchBookmarks()
-          }
+          fetchBookmarks
         )
         .subscribe()
 
@@ -91,8 +90,8 @@ export default function BookmarkList({ refreshTrigger }: BookmarkListProps) {
       }
     }
 
-    getUser()
-  }, [])
+    getUserAndSubscribe()
+  }, [fetchBookmarks])
 
   const handleDelete = async (id: string) => {
     try {

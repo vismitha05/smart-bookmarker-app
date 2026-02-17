@@ -30,7 +30,7 @@ export default function AuthPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://smart-bookmarker-app.vercel.app/auth/callback'}/auth/callback`,
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://smart-bookmarker-app.vercel.app'}/auth/callback`,
       },
     })
 

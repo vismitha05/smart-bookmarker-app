@@ -26,19 +26,21 @@ export default function AuthPage() {
   }, [router, supabase.auth])
 
   const handleGoogleSignIn = async () => {
-    setIsSigningIn(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://smart-bookmarker-app.vercel.app'}/auth/callback`,
-      },
-    })
+  setIsSigningIn(true)
 
-    if (error) {
-      console.error('Error signing in:', error)
-      setIsSigningIn(false)
-    }
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  })
+
+  if (error) {
+    console.error('Error signing in:', error)
+    setIsSigningIn(false)
   }
+}
+
 
   if (isLoading) {
     return (
